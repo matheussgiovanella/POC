@@ -1,7 +1,7 @@
 const ENDPOINT = "http://localhost:3000/"
 
 const getTarefas = async () => {
-    const response = await axios.get(`${ENDPOINT}tarefas`)
+    const response = await axios.get(`${ENDPOINT}tarefas?limit=1000`)
     return response.data
 }
 
@@ -35,8 +35,10 @@ const getTipos = async () => {
     const response = await axios.get(`${ENDPOINT}tipos`)
     return response.data
 }
-const loadTable = () => {
-    axios.get(`${ENDPOINT}tarefas`)
+const loadTable = (sort, type) => {
+    if (type)
+    {
+        axios.get(`${ENDPOINT}tarefas?limit=1000&type=${type}&sort=${sort}`)
         .then((response) => {
             const data = response.data;
             var trHTML = '';
@@ -55,8 +57,31 @@ const loadTable = () => {
             });
             document.getElementById("mytable").innerHTML = trHTML;
         })
+    }
+    else
+    {
+        axios.get(`${ENDPOINT}tarefas?limit=1000&sort=${sort}`)
+        .then((response) => {
+            const data = response.data;
+            var trHTML = '';
+            data.forEach(element => {
+                trHTML += '<tr>';
+                trHTML += '<td>' + element.id + '</td>';
+                trHTML += '<td>' + element.data_criacao + '</td>';
+                trHTML += '<td>' + element.data_vencimento + '</td>';
+                trHTML += '<td>' + element.descricao + '</td>';
+                trHTML += '<td>' + element.situacao + '</td>';
+                trHTML += '<td>' + element.prioridade + '</td>';
+                trHTML += '<td>' + element.Tipo.descricao + '</td>';
+                trHTML += '<td><button type="button" class="btn btn-outline-secondary" onclick="showTaskEditBox(' + element.id + ')">Edit</button>';
+                trHTML += '<button type="button" class="btn btn-outline-danger" onclick="taskDelete(' + element.id + ')">Del</button></td>';
+                trHTML += "</tr>";
+            });
+            document.getElementById("mytable").innerHTML = trHTML;
+        })
+    }
 };
-loadTable()
+loadTable('id')
 
 const getDate = async () => {
     const current = new Date();
@@ -248,6 +273,60 @@ const showTaskEditBox = async (id) => {
         }
     )
 }
+const showFilterTypeBox = async () => {
+    const tipos = await getTipos()
+    let tipoOptions = ``
+
+    for (const tipo of tipos)
+    {
+        {
+            tipoOptions += `<option value="${tipo.id}">${tipo.descricao}</option>`
+        }
+    }
+    Swal.fire(
+        {
+            title: 'Filter task',
+            html: 
+                `<form id="swal-form">`+
+                    `<div>`+
+                        `<label>Filtrar por id:</label>`+
+                        `<br/>`+
+                        `<select id="id" name="id">`+
+                            `<option value="id">ID</option>`+
+                            `<option value="prioridade">Prioridade</option>`+
+                        `</select>`+
+                    `</div>`+
+                    `<div>`+
+                        `<label>Filtrar por tipo:</label>`+
+                        `<br/>`+
+                        `<select id="filter" name="tipo_id">`+
+                            `<option value="all">All</option>`+
+                            `${tipoOptions}`+
+                        `</select>`+
+                    `</div>`+
+                    
+                `</form>`
+        }
+    ).then((result) =>
+    {
+        if (result.isConfirmed)
+        {
+            const id = document.getElementById('id').value
+            const tipo = document.getElementById('filter').value
+            if (tipo === 'all')
+            {
+                loadTable(id)
+            }
+            else
+            {
+                loadTable(id, tipo)
+            }
+        }
+    })
+    
+}
+
+
 
 const successPopUp = (title, text) =>
 {

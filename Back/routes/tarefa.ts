@@ -4,6 +4,8 @@ import { tarefasController } from '../controllers/TarefaController'
 const tarefaController = new tarefasController()
 export const tarefa : Router = Router()
 
+//tarefa.get('/tarefas/create/:number', tarefaController.createMultiple)
+
 tarefa.get('/tarefas/pdf', tarefaController.generatePDF)
 
 tarefa.get('/tarefas', tarefaController.index)

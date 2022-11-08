@@ -21,6 +21,7 @@ export class tarefasController
             const page = Number(params.page) || 1
             const offset = (page - 1) * limit
             const sort : any = params.sort || 'id'
+            console.log(sort)
             const order : any = params.order || 'ASC'
             const where : WhereOptions =
             {
@@ -283,6 +284,10 @@ export class tarefasController
                     [Op.notBetween]: params.prioridadeNotBetween // NOT BETWEEN
                 }
             }
+            if (params.type)
+            {
+                where.tipo_id = params.type
+            }
 
             const data = await Tarefa.findAll(
                 {
@@ -329,6 +334,34 @@ export class tarefasController
             const data = await Tarefa.create(newTarefa)
             await newLog.add('New Tarefa created!')
             res.json(data)
+        }
+        catch (error : any)
+        {
+            res.status(400).json({ error: error.message })
+        }
+    }
+    createMultiple = async (req : Request, res : Response, next : NextFunction) =>
+    {
+        const number = Number(req.params.number)
+        console.log(number)
+        try
+        {
+            for (let i = 1; i <= number; i++)
+            {
+                const newTarefa =
+                {
+                    data_criacao: String(new Date()),
+                    data_vencimento: '2022-12-08',
+                    descricao: `Tarefa ${i}`,
+                    situacao: `Criada`,
+                    prioridade: Math.floor(Math.random() * 11),
+                    tipo_id: Math.floor(Math.random() * 2) + 1
+                }
+                console.log(newTarefa.data_criacao)
+                const data = await Tarefa.create(newTarefa)
+                await newLog.add('New Tarefa created!')
+            }
+            res.json({ success: 'success' })
         }
         catch (error : any)
         {
