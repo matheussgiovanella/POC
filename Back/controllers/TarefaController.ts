@@ -342,10 +342,10 @@ export class tarefasController
     }
     createMultiple = async (req : Request, res : Response, next : NextFunction) =>
     {
-        const number = Number(req.params.number)
-        console.log(number)
         try
         {
+            const number = Number(req.params.number)
+
             for (let i = 1; i <= number; i++)
             {
                 const newTarefa =
@@ -357,7 +357,6 @@ export class tarefasController
                     prioridade: Math.floor(Math.random() * 11),
                     tipo_id: Math.floor(Math.random() * 2) + 1
                 }
-                console.log(newTarefa.data_criacao)
                 const data = await Tarefa.create(newTarefa)
                 await newLog.add('New Tarefa created!')
             }
